@@ -1,16 +1,18 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
+
+# Install Apache
+RUN apt-get update && apt-get install -y apache2 libapache2-mod-php
 
 # Aktifkan mysqli
 RUN docker-php-ext-install mysqli
 
-# Copy semua file API
+# Copy kode API
 COPY . /var/www/html/
 
-# Disable MPM lain supaya tidak double
+# Disable modul MPM lain
 RUN a2dismod mpm_event mpm_worker
 
-# Expose port default
+# Expose port
 EXPOSE 80
 
-# Jalankan Apache
-CMD ["apache2-foreground"]
+CMD ["apache2ctl", "-D", "FOREGROUND"]
