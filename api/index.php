@@ -15,8 +15,9 @@ $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 // Parse the URI
-$basePath = '/nebenginaja/api';
-$uri = str_replace($basePath, '', parse_url($requestUri, PHP_URL_PATH));
+$requestPath = parse_url($requestUri, PHP_URL_PATH);
+// Remove /api prefix if exists (for Railway deployment)
+$uri = preg_replace('#^/api/?#', '', $requestPath);
 $uri = trim($uri, '/');
 $uriParts = explode('/', $uri);
 
