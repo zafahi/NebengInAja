@@ -52,6 +52,10 @@ function getAllTrips($db) {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
     
+    // Ensure limit and offset are integers
+    $limit = max(1, min(100, $limit)); // Limit between 1-100
+    $offset = max(0, $offset); // Offset must be >= 0
+    
     $stmt = $db->prepare("
         SELECT t.*, 
                u.nama as driver_nama, u.foto_profil as driver_foto,
@@ -69,9 +73,11 @@ function getAllTrips($db) {
         WHERE t.status IN ('menunggu', 'aktif')
         AND t.waktu_keberangkatan > NOW()
         ORDER BY t.waktu_keberangkatan ASC
-        LIMIT ? OFFSET ?
+        LIMIT :limit OFFSET :offset
     ");
-    $stmt->execute([$limit, $offset]);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Get total count
