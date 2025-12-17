@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+// Untuk support env variable VITE_API_URL (bisa di-set di Railway atau .env.production)
+const baseURL = import.meta.env.VITE_API_URL || '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json'
   }
