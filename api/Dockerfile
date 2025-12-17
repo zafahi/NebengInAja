@@ -1,18 +1,16 @@
 FROM php:8.2-cli
 
-# Install Apache
-RUN apt-get update && apt-get install -y apache2 libapache2-mod-php
-
-# Aktifkan mysqli
+# Aktifkan ekstensi mysqli
 RUN docker-php-ext-install mysqli
 
-# Copy kode API
-COPY . /var/www/html/
+# Copy semua file API
+COPY . /app
 
-# Disable modul MPM lain
-RUN a2dismod mpm_event mpm_worker
+# Set working directory
+WORKDIR /app
 
-# Expose port
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
-CMD ["apache2ctl", "-D", "FOREGROUND"]
+# Jalankan built-in PHP server
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "."]
