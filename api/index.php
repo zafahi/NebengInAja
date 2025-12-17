@@ -52,6 +52,26 @@ switch ($endpoint) {
     case 'reviews':
         require_once __DIR__ . '/reviews.php';
         break;
+    case 'test-db':
+        // Test database connection
+        try {
+            $database = new Database();
+            $db = $database->getConnection();
+            if ($db) {
+                $stmt = $db->query("SELECT COUNT(*) as count FROM users");
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                sendSuccess([
+                    'database_connected' => true,
+                    'users_count' => $result['count'] ?? 0,
+                    'message' => 'Database connection successful'
+                ]);
+            } else {
+                sendError('Database connection failed', 500);
+            }
+        } catch (Exception $e) {
+            sendError('Database error: ' . $e->getMessage(), 500);
+        }
+        break;
     case '':
         sendSuccess([
             'name' => 'Nebeng API',
