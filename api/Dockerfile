@@ -1,14 +1,16 @@
-# Gunakan PHP + Apache resmi
 FROM php:8.2-apache
 
-# Aktifkan ekstensi mysqli
+# Aktifkan mysqli
 RUN docker-php-ext-install mysqli
 
-# Copy semua file API ke root Apache
+# Copy semua file API
 COPY . /var/www/html/
 
-# Expose port default Apache
+# Disable MPM lain supaya tidak double
+RUN a2dismod mpm_event mpm_worker
+
+# Expose port default
 EXPOSE 80
 
-# Jalankan Apache di foreground
+# Jalankan Apache
 CMD ["apache2-foreground"]
