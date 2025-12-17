@@ -17,13 +17,26 @@ class Database {
     public function getConnection() {
         $this->conn = null;
         try {
-            $this->conn = new PDO(
-                "mysql:host={$this->host};dbname={$this->db_name}",
-                $this->username, $this->password
-            );
-            $this->conn->exec("set names utf8");
+            $port = getenv('MYSQLPORT') ?: '3306';
+            $dsn = "mysql:host={$this->host};port={$port};dbname={$this->db_name};charset=utf8mb4";
+            
+            // Set timeout options
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 5, // 5 seconds timeout
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ];
+            
+            $this->conn = new PDO($dsn, $this->username, $this->password, $options);
+            $this->conn->exec("set names utf8mb4");
         } catch(PDOException $exception) {
-            echo "Connection error: " . $exception->getMessage();
+            error_log("Database Connection Error: " . $exception->getMessage());
+            error_log("Host: {$this->host}, Port: " . (getenv('MYSQLPORT') ?: '3306') . ", DB: {$this->db_name}, User: {$this->username}");
+            http_response_code(500);
+            die(json_encode([
+                'success' => false,
+                'message' => 'Database connection failed: ' . $exception->getMessage()
+            ]));
         }
         return $this->conn;
     }
